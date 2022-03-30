@@ -11,7 +11,7 @@ from random import choice
 from sys import exit
 
 from .constants import OBLIQUE_STRATEGIES, TIME_FORMAT
-from .obsidian_commands import star_unstar_note_by_system_path
+from .obsidian_commands import open_file, star_unstar_note_by_system_path
 from .path_utils import build_paths, system_path_to_obsidian_path, system_path_to_bare_note_name
 
 
@@ -61,12 +61,11 @@ def main(args):
         f.write('- [ ]\n---\n#TODO')
         print(f'Created {paths["todo_path"]}')
 
+    open_file(args.vault, paths["todo_path"])
     star_unstar_note_by_system_path(args.vault, paths["todo_path"])
     # Unstar yesterday's TODO note.
     # TODO - search back for "preceding existing note" rather than assuming yesterday's exists
     star_unstar_note_by_system_path(args.vault, paths["previous_todo_path"])
-
-    # TODO - send Intent to Obsidian to open this file, and to star this and unstar previous day's
 
 
 def _is_weekend(d: datetime):
