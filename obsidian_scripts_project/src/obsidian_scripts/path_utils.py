@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta
 from os import sep
 from pathlib import Path
+from typing import Dict
 
 from .constants import TIME_FORMAT
+from .obsidian_path import ObsidianPath
 
 
 # TODO - implement a properly typed return (or at least a namedtuple) for this
-def build_paths(vault_name, today_string):
+def build_paths(vault_name, today_string) -> Dict[str, ObsidianPath]:
 
     # Sucks to be parsing this string to a datetime here _and_ in `main`, but the alternative
     # would be passing two dependent variables into this method, which feels worse.
@@ -34,30 +36,21 @@ def build_paths(vault_name, today_string):
         return gtd_todos_dir_path.joinpath(f'Todo - {d.strftime(TIME_FORMAT)}.md')
 
     daily_notes_dir_path = vault_path.joinpath('Daily Notes')
-    daily_note_index_path = vault_path.joinpath('Daily Note Index.md')
-    daily_note_path = daily_notes_dir_path.joinpath(f'{today_string}.md')
-    todo_path = _date_to_todo_path(today)
-    # Unstar the TODO from 2 days prior, so we have today's and yesterday's for reference
-    previous_todo_path = _date_to_todo_path(today - timedelta(2))
-    template_path = _get_template_path(today)
+    daily_note_index_path =\
+        ObsidianPath.build_from_system_path(vault_path.joinpath('Daily Note Index.md'))
+    daily_note_path =\
+        ObsidianPath.build_from_system_path(daily_notes_dir_path.joinpath(f'{today_string}.md'))
+    todo_path =\
+        ObsidianPath.build_from_system_path(_date_to_todo_path(today))
+    template_obsidian_path =\
+        ObsidianPath.build_from_system_path(_get_template_path(today))
     return {
         'daily_note_index_path': daily_note_index_path,
         'daily_note_path': daily_note_path,
         'todo_path': todo_path,
-        'previous_todo_path': previous_todo_path,
-        'template_path': template_path,
-        'vault_path': vault_path
+        'template_path': template_obsidian_path,
+        'vault_path': ObsidianPath(vault_path, '')
     }
-
-
-def system_path_to_obsidian_path(path: Path):
-    # [1:] removes the `scubbo-vault` path part
-    # [:-3] removes `.md` suffix
-    return sep.join(path.parts[1:])[:-3]
-
-
-def system_path_to_bare_note_name(path: Path):
-    return path.name[:-len(path.suffix)]
 
 
 def _is_weekend(d: datetime):

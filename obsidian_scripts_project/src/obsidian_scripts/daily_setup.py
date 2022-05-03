@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
-import shutil
-import urllib.parse
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from random import choice
 from sys import exit
 
 from .constants import OBLIQUE_STRATEGIES, TIME_FORMAT
-from .obsidian_commands import open_file, star_unstar_note_by_system_path
-from .path_utils import build_paths, system_path_to_obsidian_path, system_path_to_bare_note_name
+from .obsidian_commands import open_file, star_unstar_note
+from .path_utils import build_paths
+from .star_utils import get_starred_todos_in_date_order
 
 
 def main(args):
@@ -29,50 +27,56 @@ def main(args):
             exit(1)
 
     paths = build_paths(args.vault, today_string)
-    if not paths["vault_path"].exists():
+    if not paths["vault_path"].system_path.exists():
         print(f'Vault does not exist at path {paths["vault_path"]}')
         exit(1)
 
-    with paths['daily_note_index_path'].open('a') as f:
-        f.write(f'\n* [[{system_path_to_obsidian_path(paths["daily_note_path"])}|'
-                f'{system_path_to_bare_note_name(paths["daily_note_path"])}]]')
+    with paths['daily_note_index_path'].system_path.open('a') as f:
+        f.write(f'\n* [[{paths["daily_note_path"].inner_path}|'
+                f'{paths["daily_note_path"].bare_note_name()}]]')
         print(f'Added a link to today\'s Daily Note in {paths["daily_note_index_path"]}')
 
-    if paths['daily_note_path'].exists():
+    if paths['daily_note_path'].system_path.exists():
         print(f'Daily note path ({paths["daily_note_path"]}) already exists')
         exit(1)
 
-    with paths['daily_note_path'].open('a') as f:
+    with paths['daily_note_path'].system_path.open('a') as f:
         f.write(f'# Daily note for {today_string}\n')
-        f.write(f'[[{system_path_to_obsidian_path(paths["todo_path"])}|TODO note]]\n')
+        f.write(f'[[{paths["todo_path"].inner_path}|TODO note]]\n')
         f.write(f'Today\'s thought: {choice(OBLIQUE_STRATEGIES)}')
-        print(f'Created {paths["daily_note_path"]}')
+        print(f'Created {paths["daily_note_path"].inner_path}')
 
-    if paths["todo_path"].exists():
+    if paths["todo_path"].system_path.exists():
         print(f'Target path ({paths["todo_path"]}) already exists.')
         exit(1)
 
-    with paths["todo_path"].open('a') as f:
-        f.write(f'[[{system_path_to_obsidian_path(paths["daily_note_path"])}|Main Daily Note]]\n')
-        f.write(paths["template_path"].read_text())
+    with paths["todo_path"].system_path.open('a') as f:
+        f.write(f'[[{paths["daily_note_path"].inner_path}|Main Daily Note]]\n')
+        f.write(paths["template_path"].system_path.read_text())
         f.write('\n')
         f.write('---\n')
         # TODO - parse previous day's TODO's and add any uncompleted ones in here
         f.write('- [ ]\n---\n#TODO')
-        print(f'Created {paths["todo_path"]}')
+        print(f'Created {paths["todo_path"].inner_path}')
 
     open_file(args.vault, paths["todo_path"])
-    star_unstar_note_by_system_path(args.vault, paths["todo_path"])
-    # Unstar yesterday's TODO note.
-    # TODO - search back for "preceding existing note" rather than assuming yesterday's exists
-    star_unstar_note_by_system_path(args.vault, paths["previous_todo_path"])
+    # Unstar all TODOs except the most-recent previous one...
+    for starred_todo in get_starred_todos_in_date_order(Path(args.vault))[:-1]:
+        print(f'DEBUG - unstarring {starred_todo}')
+        star_unstar_note(
+            args.vault,
+            starred_todo.obsidian_path)
+    # ...and Star today's
+    star_unstar_note(args.vault, paths["todo_path"])
 
 
 def _is_weekend(d: datetime):
     return d.isoweekday() in (6, 7)
 
+
 def _is_friday(d: datetime):
     return d.isoweekday() == 5
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
