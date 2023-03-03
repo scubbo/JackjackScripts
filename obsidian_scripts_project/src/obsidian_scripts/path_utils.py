@@ -17,10 +17,10 @@ def build_paths(vault_name, today_string) -> Dict[str, ObsidianPath]:
     today = datetime.strptime(today_string, TIME_FORMAT)
 
     vault_path = Path(vault_name)
-    template_path = Path(vault_path.joinpath('Templates'))
-    routine_template_path = template_path.joinpath('Morning Routine - 2022.md')
-    friday_template_path = template_path.joinpath('Morning Routine (Friday) - 2022.md')
-    weekend_template_path = template_path.joinpath('Morning Routine (Weekend) - 2022.md')
+    template_path = Path(vault_path.joinpath('Templates', str(today.year)))
+    routine_template_path = template_path.joinpath('Morning Routine.md')
+    friday_template_path = template_path.joinpath('Morning Routine (Friday).md')
+    weekend_template_path = template_path.joinpath('Morning Routine (Weekend).md')
 
     def _get_template_path(d: datetime):
         if _is_weekend(d):
