@@ -62,7 +62,8 @@ def main(args):
         # TODO - parse previous day's TODO's and add any uncompleted ones in here
         f.write('**Personal**\n- [ ] \n---\n')
         f.write('**Work**\n- [ ] \n---\n')
-        f.write('\n#TODO - personal')
+        f.write('**Week-scale Tasks**\n- [ ] \n---\n')
+        f.write('\n#TODO')
         LOGGER.info(f'Created {paths["todo_path"].inner_path}')
 
     open_file(args.vault, paths["todo_path"])
