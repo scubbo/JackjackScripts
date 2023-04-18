@@ -13,7 +13,7 @@ class TestStarUtils(TestCase):
     def test_get_starred(self):
         starred = list(star_utils.get_starred(VAULT_PATH))
         self.assertCountEqual(
-            map(lambda todo: todo['title'], starred),
+            map(lambda todo: todo.title, starred),
             ['Starred TODO note - 2022-04-30',
              'Non-Todo Starred Note',
              'Starred New TODO note - 2022-07-08',
@@ -22,7 +22,7 @@ class TestStarUtils(TestCase):
     def test_get_starred_todos(self):
         starred = list(star_utils.get_starred_todos(VAULT_PATH))
         self.assertCountEqual(
-            map(lambda todo: todo['title'], starred),
+            map(lambda todo: todo.title, starred),
             ['Starred TODO note - 2022-04-30',
              'Starred New TODO note - 2022-07-08',
              'Starred Old TODO note - 2022-01-01'])
@@ -32,7 +32,7 @@ class TestStarUtils(TestCase):
         # TODO - I haven't found a way to do equality-checking without
         # converting the `map` to a `list`?
         self.assertEqual(
-            list(map(lambda todo: todo['title'], starred)),
+            list(map(lambda todo: todo.title, starred)),
             ['Starred Old TODO note - 2022-01-01',
              'Starred TODO note - 2022-04-30',
              'Starred New TODO note - 2022-07-08'])

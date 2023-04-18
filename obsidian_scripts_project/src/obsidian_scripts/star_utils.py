@@ -10,6 +10,7 @@ from .obsidian_path import ObsidianPath
 @dataclass
 class StarredItem:
     obsidian_path: ObsidianPath
+    title: str
 
 
 def get_starred(
@@ -22,8 +23,10 @@ def get_starred(
     # is a path relative to the the vault root, but includes the `.md` extension - hence the [:-3]
     return map(
         lambda json_item: StarredItem(
-            ObsidianPath.build_from_obsidian_path(json_item['path'][:-3],
-                                                  vault_path)),
+            obsidian_path=ObsidianPath.build_from_obsidian_path(json_item['path'][:-3],
+                                                  vault_path),
+            title=json_item['title']
+        ),
         filter(filter_func, starred_info['items']))
 
 
@@ -36,4 +39,4 @@ def get_starred_todos_in_date_order(vault_path: Path) -> Iterable[StarredItem]:
 
 
 def _get_date_for_todo(todo: StarredItem) -> date:
-    return date.fromisoformat(todo.obsidian_path.inner_path[-10:])
+    return date.fromisoformat(todo.title[-10:])
