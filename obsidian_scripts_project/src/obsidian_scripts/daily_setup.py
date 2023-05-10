@@ -9,9 +9,9 @@ from random import choice
 from sys import stdout, exit
 
 from .constants import OBLIQUE_STRATEGIES, TIME_FORMAT
-from .obsidian_commands import open_file, star_unstar_note
+from .obsidian_commands import open_file, bookmark_file, unbookmark_file
 from .path_utils import build_paths
-from .star_utils import get_starred_todos_in_date_order
+from .bookmark_utils import get_bookmarked_todos_in_date_order
 
 
 logging.basicConfig(stream=stdout, level=logging.INFO)
@@ -68,13 +68,11 @@ def main(args):
 
     open_file(args.vault, paths["todo_path"])
     # Unstar all TODOs except the most-recent previous one...
-    for starred_todo in get_starred_todos_in_date_order(Path(args.vault))[:-1]:
+    for starred_todo in get_bookmarked_todos_in_date_order(Path(args.vault))[:-1]:
         LOGGER.info(f'DEBUG - unstarring {starred_todo}')
-        star_unstar_note(
-            args.vault,
-            starred_todo.obsidian_path)
-    # ...and Star today's
-    star_unstar_note(args.vault, paths["todo_path"])
+        unbookmark_file(starred_todo.obsidian_path)
+    # ...and bookmark today's
+    bookmark_file(paths["todo_path"])
 
 
 def _is_weekend(d: datetime):

@@ -14,6 +14,9 @@ class ObsidianPath:
         path = self.system_path
         return path.name[:-len(path.suffix)]
 
+    def vault_path(self):
+        return self.system_path[:str(self.system_path).index(self.inner_path)]
+
     @staticmethod
     def build_from_system_path(path: Path) -> 'ObsidianPath':
         return ObsidianPath(path, sep.join(path.parts[1:])[:-len(path.suffix)])

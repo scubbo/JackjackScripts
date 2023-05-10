@@ -1,6 +1,6 @@
 # TODO - fixture to add `src.obsidian_scripts` to `sys.path`
 # (probably by using `conftest.py`)
-import src.obsidian_scripts.star_utils as star_utils
+import src.obsidian_scripts.bookmark_utils as bookmark_utils
 from unittest import TestCase
 
 from pathlib import Path
@@ -11,7 +11,7 @@ VAULT_PATH = Path('.').parent.joinpath('testing-vault')
 class TestStarUtils(TestCase):
 
     def test_get_starred(self):
-        starred = list(star_utils.get_starred(VAULT_PATH))
+        starred = list(bookmark_utils.get_bookmarks(VAULT_PATH))
         self.assertCountEqual(
             map(lambda todo: todo.title, starred),
             ['Starred TODO note - 2022-04-30',
@@ -20,7 +20,7 @@ class TestStarUtils(TestCase):
              'Starred Old TODO note - 2022-01-01'])
 
     def test_get_starred_todos(self):
-        starred = list(star_utils.get_starred_todos(VAULT_PATH))
+        starred = list(bookmark_utils.get_bookmarked_todos(VAULT_PATH))
         self.assertCountEqual(
             map(lambda todo: todo.title, starred),
             ['Starred TODO note - 2022-04-30',
@@ -28,7 +28,7 @@ class TestStarUtils(TestCase):
              'Starred Old TODO note - 2022-01-01'])
 
     def test_get_starred_todos_in_order(self):
-        starred = list(star_utils.get_starred_todos_in_date_order(VAULT_PATH))
+        starred = list(bookmark_utils.get_bookmarked_todos_in_date_order(VAULT_PATH))
         # TODO - I haven't found a way to do equality-checking without
         # converting the `map` to a `list`?
         self.assertEqual(
