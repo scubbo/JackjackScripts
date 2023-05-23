@@ -1,0 +1,4 @@
+#!/bin/bash
+
+osascript "$(dirname $0)/make_sticky.scpt" "$1"
+
