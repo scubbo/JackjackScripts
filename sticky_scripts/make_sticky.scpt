@@ -6,6 +6,8 @@ on run argv
                 delay 0.5
                 keystroke "n" using command down
                 keystroke (item 1 of argv)
+                keystroke "f" using {command down, option down}
+                keystroke "t" using {command down, option down}
             end tell
         end tell
     end tell
