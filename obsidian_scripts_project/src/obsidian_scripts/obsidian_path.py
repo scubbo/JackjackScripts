@@ -1,7 +1,9 @@
+import logging
 from dataclasses import dataclass
 from os import sep
 from pathlib import Path
 
+LOGGER = logging.getLogger(__name__)
 
 @dataclass
 class ObsidianPath:
@@ -15,7 +17,9 @@ class ObsidianPath:
         return path.name[:-len(path.suffix)]
 
     def vault_path(self):
-        return self.system_path[:str(self.system_path).index(self.inner_path)]
+        ret_val = str(self.system_path.absolute())[:str(self.system_path.absolute()).index(self.inner_path)]
+        LOGGER.info(ret_val)
+        return ret_val
 
     @staticmethod
     def build_from_system_path(path: Path) -> 'ObsidianPath':
@@ -23,4 +27,5 @@ class ObsidianPath:
 
     @staticmethod
     def build_from_obsidian_path(obs_path: str, vault_path: Path) -> 'ObsidianPath':
-        return ObsidianPath(Path(f'{vault_path.parts[:-1]}{sep}{obs_path}.md'), obs_path)
+        # TODO - this could probably be done more neatly with `Path(...).join_path`, but I'm debugging
+        return ObsidianPath(Path(f'{sep.join(vault_path.parts + (obs_path,))}.md'), obs_path)

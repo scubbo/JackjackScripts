@@ -3,6 +3,7 @@ import logging
 
 from datetime import datetime
 from os import system
+from pathlib import Path
 
 from urllib.parse import quote, urlencode, urlunparse
 
@@ -28,13 +29,13 @@ def open_file(vault_name: str, path: ObsidianPath):
 
 
 def bookmark_file(path: ObsidianPath):
-    vault_path = path.vault_path()
+    vault_path = Path(path.vault_path())
     bookmark_info_file = vault_path.joinpath('.obsidian').joinpath('bookmarks.json')
     bookmark_info = json.loads(bookmark_info_file.read_text())
     if path.inner_path not in [item['path'] for item in bookmark_info['items']]:
         bookmark_info['items'].append({
             'type': 'file',
-            'path': path.inner_path,
+            'path': f'{path.inner_path}.md',
             'ctime': int(datetime.now().timestamp()*1000)
         })
         bookmark_info_file.write_text(json.dumps(bookmark_info))
@@ -43,11 +44,11 @@ def bookmark_file(path: ObsidianPath):
 
 
 def unbookmark_file(path: ObsidianPath):
-    vault_path = path.vault_path()
+    vault_path = Path(path.vault_path())
     bookmark_info_file = vault_path.joinpath('.obsidian').joinpath('bookmarks.json')
     bookmark_info = json.loads(bookmark_info_file.read_text())
     for idx, elem in enumerate(bookmark_info['items']):
-        if elem['path'] == path.inner_path:
+        if elem['path'] == path.inner_path+'.md':
             bookmark_info['items'].pop(idx)
             bookmark_info_file.write_text(json.dumps(bookmark_info))
             break

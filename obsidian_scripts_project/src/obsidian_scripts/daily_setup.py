@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import subprocess
 
 from datetime import datetime
 from pathlib import Path
@@ -18,6 +19,8 @@ logging.basicConfig(stream=stdout, level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
 def main(args):
+
+    thought_of_the_day = choice(OBLIQUE_STRATEGIES)
 
     if not args.date:
         today = datetime.today()
@@ -47,8 +50,10 @@ def main(args):
     with paths['daily_note_path'].system_path.open('a') as f:
         f.write(f'# Daily note for {today_string}\n')
         f.write(f'[[{paths["todo_path"].inner_path}|TODO note]]\n')
-        f.write(f'Today\'s thought: {choice(OBLIQUE_STRATEGIES)}')
+        f.write(f'Today\'s thought: {thought_of_the_day}')
         LOGGER.info(f'Created {paths["daily_note_path"].inner_path}')
+
+    subprocess.run(['sticky', thought_of_the_day])
 
     if paths["todo_path"].system_path.exists():
         LOGGER.info(f'Target path ({paths["todo_path"]}) already exists.')
