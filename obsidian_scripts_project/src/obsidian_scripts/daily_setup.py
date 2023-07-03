@@ -13,6 +13,7 @@ from .constants import OBLIQUE_STRATEGIES, TIME_FORMAT
 from .obsidian_commands import open_file, bookmark_file, unbookmark_file
 from .path_utils import build_paths
 from .bookmark_utils import get_bookmarked_todos_in_date_order
+from .project_summary import text_of_overview
 
 
 logging.basicConfig(stream=stdout, level=logging.INFO)
@@ -78,6 +79,13 @@ def main(args):
         unbookmark_file(starred_todo.obsidian_path)
     # ...and bookmark today's
     bookmark_file(paths["todo_path"])
+
+    LOGGER.info('Creating/updating the Project Overview page')
+    with open(paths['project_root'].system_path.joinpath('Overview.md'), 'w') as f:
+        f.write(text_of_overview(
+            paths['project_root'],
+            ['Overview', 'Someday or Maybe', 'README']
+        ))
 
 
 def _is_weekend(d: datetime):

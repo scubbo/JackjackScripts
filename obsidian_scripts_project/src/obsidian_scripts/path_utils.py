@@ -49,7 +49,8 @@ def build_paths(vault_name, today_string) -> Dict[str, ObsidianPath]:
         'daily_note_path': daily_note_path,
         'todo_path': todo_path,
         'template_path': template_obsidian_path,
-        'vault_path': ObsidianPath(vault_path, '')
+        'vault_path': ObsidianPath(vault_path, ''),
+        'project_root': ObsidianPath(vault_path.joinpath('GTD').joinpath('Projects'), 'GTD/Projects')
     }
 
 
