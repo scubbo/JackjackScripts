@@ -54,8 +54,6 @@ def main(args):
         f.write(f'Today\'s thought: {thought_of_the_day}')
         LOGGER.info(f'Created {paths["daily_note_path"].inner_path}')
 
-    subprocess.run(['sticky', thought_of_the_day])
-
     if paths["todo_path"].system_path.exists():
         LOGGER.info(f'Target path ({paths["todo_path"]}) already exists.')
         exit(1)
