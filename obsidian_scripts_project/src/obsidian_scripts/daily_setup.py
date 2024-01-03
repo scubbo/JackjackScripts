@@ -49,7 +49,6 @@ def main(args):
         exit(1)
 
     with paths['daily_note_path'].system_path.open('a') as f:
-        f.write(f'# Daily note for {today_string}\n')
         f.write(f'[[{paths["todo_path"].inner_path}|TODO note]]\n')
         f.write(f'Today\'s thought: {thought_of_the_day}')
         LOGGER.info(f'Created {paths["daily_note_path"].inner_path}')
