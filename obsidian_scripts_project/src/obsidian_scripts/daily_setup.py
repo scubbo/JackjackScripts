@@ -90,10 +90,6 @@ def _is_weekend(d: datetime):
     return d.isoweekday() in (6, 7)
 
 
-def _is_friday(d: datetime):
-    return d.isoweekday() == 5
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--vault', default='scubbo-vault',

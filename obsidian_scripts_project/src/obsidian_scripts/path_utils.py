@@ -19,14 +19,11 @@ def build_paths(vault_name, today_string) -> Dict[str, ObsidianPath]:
     vault_path = Path(vault_name)
     template_path = Path(vault_path.joinpath('Templates', str(today.year)))
     routine_template_path = template_path.joinpath('Morning Routine.md')
-    friday_template_path = template_path.joinpath('Morning Routine (Friday).md')
     weekend_template_path = template_path.joinpath('Morning Routine (Weekend).md')
 
     def _get_template_path(d: datetime):
         if _is_weekend(d):
             return weekend_template_path
-        if _is_friday(d):
-            return friday_template_path
         return routine_template_path
 
     gtd_dir_path = vault_path.joinpath('GTD')
@@ -56,7 +53,3 @@ def build_paths(vault_name, today_string) -> Dict[str, ObsidianPath]:
 
 def _is_weekend(d: datetime):
     return d.isoweekday() in (6, 7)
-
-
-def _is_friday(d: datetime):
-    return d.isoweekday() == 5
