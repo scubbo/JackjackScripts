@@ -50,7 +50,8 @@ def main(args):
 
     with paths['daily_note_path'].system_path.open('a') as f:
         f.write(f'[[{paths["todo_path"].inner_path}|TODO note]]\n')
-        f.write(f'Today\'s thought: {thought_of_the_day}')
+        f.write(f'Today\'s thought: {thought_of_the_day}\n')
+        f.write(f'# Daily Tracking\n## Who I Saw\n\n## What I Learned\n\n## What I Built\n\n## How I Helped\n')
         LOGGER.info(f'Created {paths["daily_note_path"].inner_path}')
 
     if paths["todo_path"].system_path.exists():
