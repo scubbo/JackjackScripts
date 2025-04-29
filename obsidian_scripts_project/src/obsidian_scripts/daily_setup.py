@@ -67,7 +67,7 @@ def main(args):
         f.write('**Personal**\n- [ ] \n---\n')
         f.write('**Work**\n- [ ] \n---\n')
         f.write('**Week-scale Tasks**\n- [ ] \n---\n')
-        f.write('# Data\n\n```\ngmail:\n  start-count: \n  end-count: \nprotonmail:\n  start-count: \n  end-count: \nwork-email:\n  start-count: \n  end-count: \n```\n---\n')
+        f.write('# Data\n\n```\ngmail:\n  start-count: \n  end-count: \nprotonmail:\n  start-count: \n  end-count: \n```\n---\n')
         f.write('\n#TODO')
         LOGGER.info(f'Created {paths["todo_path"].inner_path}')
 
