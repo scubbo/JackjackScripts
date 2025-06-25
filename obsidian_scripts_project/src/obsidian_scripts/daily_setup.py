@@ -60,6 +60,9 @@ def main(args):
 
     with paths["todo_path"].system_path.open('a') as f:
         f.write(f'[[{paths["daily_note_path"].inner_path}|Main Daily Note]]\n')
+        prior_note_path = _random_prior_note_path(paths["vault_path"].system_path)
+        prior_note_title = prior_note_path.stem
+        f.write(f'A random prior note. Review it for refiling or expansion: "[[{prior_note_path}|{prior_note_title}]]"\n')
         f.write(paths["template_path"].system_path.read_text())
         f.write('\n')
         f.write('---\n')
@@ -86,6 +89,8 @@ def main(args):
             ['Overview', 'Someday or Maybe', 'README']
         ))
 
+def _random_prior_note_path(vault_path: Path) -> Path:
+    return choice([note for note in vault_path.glob('**/*.md') if note.parts[0] != 'Templates'])
 
 def _is_weekend(d: datetime):
     return d.isoweekday() in (6, 7)
