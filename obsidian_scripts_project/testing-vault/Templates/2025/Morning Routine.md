@@ -1,0 +1,22 @@
+# Checklist
+
+- [ ] Meditate (if not done so already)
+- [ ] Hydration
+	- [ ] Fill Water Bottle
+- [ ] Write brief morning notes in Daily note
+- [ ] Start grip strength training while doing Comms
+- [ ] Comms process:
+	- [ ] Personal email (Gmail and Protonmail)
+		- [ ] Note starting and finishing unread count. Always at least 1 fewer unread than previous day
+	- [ ] Signal, WhatsApp, and other chats
+- [ ] Check today's [calendar](https://calendar.google.com)
+- [ ] Review the previous day's TK leftovers
+- [ ] Check RTM for any tasks for today
+- [ ] Check [[GTD/Checkbacks|Checkbacks]] for anything that needs attention
+- [ ] Tidy away 3 physical items (an intentional "*stand up and move around*" interruption to demarcate "*inbox parsing*" from "*action*")
+	- [ ] Open the curtains!
+- [ ] Re-read Todos and weekly intention => divide up the day into work-chunks
+- [ ] Do NYT Games:
+	- [ ] Stephanie dice game
+	- [ ] [Bandle](https://bandle.app)
+	- [ ] [Bracket City](https://www.theatlantic.com/games/bracket-city/)
