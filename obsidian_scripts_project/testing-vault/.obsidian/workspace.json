@@ -11,8 +11,14 @@
             "id": "95c2574539e2ca17",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {}
+              "type": "markdown",
+              "state": {
+                "file": "GTD/Daily TODOs/Todo - 2025-10-30.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Todo - 2025-10-30"
             }
           }
         ]
@@ -34,8 +40,11 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical"
-              }
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
             }
           },
           {
@@ -50,7 +59,9 @@
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-search",
+              "title": "Search"
             }
           },
           {
@@ -58,7 +69,19 @@
             "type": "leaf",
             "state": {
               "type": "starred",
-              "state": {}
+              "state": {},
+              "icon": "lucide-file",
+              "title": "Plugin no longer active"
+            }
+          },
+          {
+            "id": "56f7ef427400fc55",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
             }
           }
         ]
@@ -81,6 +104,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "GTD/Daily TODOs/Todo - 2025-10-30.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -88,7 +112,9 @@
                 "searchQuery": "",
                 "backlinkCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Todo - 2025-10-30"
             }
           },
           {
@@ -97,9 +123,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "GTD/Daily TODOs/Todo - 2025-10-30.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Todo - 2025-10-30"
             }
           },
           {
@@ -109,8 +138,12 @@
               "type": "tag",
               "state": {
                 "sortOrder": "frequency",
-                "useHierarchy": true
-              }
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
             }
           },
           {
@@ -118,7 +151,14 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {}
+              "state": {
+                "file": "GTD/Daily TODOs/Todo - 2025-10-30.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Todo - 2025-10-30"
             }
           }
         ]
@@ -140,6 +180,10 @@
   },
   "active": "95c2574539e2ca17",
   "lastOpenFiles": [
+    "testing-vault/Non-Todo Starred Note.md",
+    "GTD/Daily TODOs/Todo - 2025-10-30.md",
+    "testing-vault",
+    "Daily Notes/2025-10-30.md",
     "Non-Todo Starred Note.md",
     "GTD/Daily TODOs/Starred TODO note - 2022-04-30.md",
     "GTD/Daily TODOs/Starred Old TODO note - 2022-01-01.md",
