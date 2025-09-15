@@ -90,7 +90,17 @@ def main(args):
         ))
 
 def _random_prior_note_path(vault_path: Path) -> Path:
-    return choice([note for note in vault_path.glob('**/*.md') if note.parts[0] != 'Templates'])
+    found_note = choice([note for note in vault_path.glob('**/*.md') if
+                         note.parts[1] != 'Templates' and
+                         # Filter out TODO notes
+                         not(len(note.parts) > 2 and note.parts[2] == 'Daily TODOs') and
+                         # Filter out Comms
+                         not(len(note.parts) > 1 and note.parts[1] == 'Comms') and
+                         # Filter out daily notes
+                         not(len(note.parts) > 1 and note.parts[1] == 'Daily Notes')])
+    # Debug logging here because it's not filtering out the daily todo notes and I'd like to know why :P
+    LOGGER.info(f'Found note: {found_note}')
+    return found_note
 
 def _is_weekend(d: datetime):
     return d.isoweekday() in (6, 7)
