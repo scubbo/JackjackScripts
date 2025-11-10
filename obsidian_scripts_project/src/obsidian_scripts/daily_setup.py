@@ -62,7 +62,7 @@ def main(args):
         f.write(f'[[{paths["daily_note_path"].inner_path}|Main Daily Note]]\n')
         prior_note_path = _random_prior_note_path(paths["vault_path"].system_path)
         prior_note_title = prior_note_path.stem
-        f.write(f'A random prior note. Review it for refiling or expansion: "[[{'/'.join(prior_note_path.split('/')[1:])}|{prior_note_title}]]"\n')
+        f.write(f'A random prior note. Review it for refiling or expansion: "[[{'/'.join(prior_note_path.parts[1:])}|{prior_note_title}]]"\n')
         f.write(paths["template_path"].system_path.read_text())
         f.write('\n')
         f.write('---\n')
