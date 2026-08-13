@@ -95,12 +95,22 @@ class TestDailySetup(DailySetupTestCase):
         self.assertIn(f'* [[Daily Notes/{DATE_WITHOUT_NOTES}|{DATE_WITHOUT_NOTES}]]',
                       self.index_contents())
 
+    def todo_contents(self):
+        return self.vault_path \
+            .joinpath('GTD', 'Daily TODOs', f'Todo - {DATE_WITHOUT_NOTES}.md').read_text()
+
     def test_todo_note_includes_the_template(self):
         template_text = self.vault_path \
             .joinpath('Templates', '2025', 'Morning Routine.md').read_text()
 
         self.run_daily_setup(DATE_WITHOUT_NOTES)
 
-        todo_text = self.vault_path \
-            .joinpath('GTD', 'Daily TODOs', f'Todo - {DATE_WITHOUT_NOTES}.md').read_text()
-        self.assertIn(template_text, todo_text)
+        self.assertIn(template_text, self.todo_contents())
+
+    def test_links_the_random_prior_note_without_its_extension(self):
+        self.run_daily_setup(DATE_WITHOUT_NOTES)
+
+        prior_note_line, = [line for line in self.todo_contents().splitlines()
+                            if line.startswith('A random prior note')]
+        self.assertRegex(prior_note_line, r'"\[\[[^\]|]+\|[^\]|]+\]\]"')
+        self.assertNotIn('.md', prior_note_line)

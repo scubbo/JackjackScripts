@@ -11,6 +11,7 @@ from sys import stderr, stdout, exit
 
 from .constants import OBLIQUE_STRATEGIES, TIME_FORMAT
 from .obsidian_commands import open_file, bookmark_file, unbookmark_file
+from .obsidian_path import ObsidianPath
 from .path_utils import build_paths
 from .bookmark_utils import get_bookmarked_todos_in_date_order
 from .project_summary import text_of_overview
@@ -76,9 +77,10 @@ def main(args):
 
     with paths["todo_path"].system_path.open('a') as f:
         f.write(f'[[{paths["daily_note_path"].inner_path}|Main Daily Note]]\n')
-        prior_note_path = _random_prior_note_path(paths["vault_path"].system_path)
-        prior_note_title = prior_note_path.stem
-        f.write(f'A random prior note. Review it for refiling or expansion: "[[{'/'.join(prior_note_path.parts[1:])}|{prior_note_title}]]"\n')
+        prior_note = ObsidianPath.build_from_system_path(
+            _random_prior_note_path(paths["vault_path"].system_path))
+        f.write(f'A random prior note. Review it for refiling or expansion: '
+                f'"[[{prior_note.inner_path}|{prior_note.bare_note_name()}]]"\n')
         f.write(paths["template_path"].system_path.read_text())
         f.write('\n')
         f.write('---\n')
