@@ -3,39 +3,17 @@ import src.obsidian_scripts.daily_setup as daily_setup
 from argparse import Namespace
 from contextlib import redirect_stdout
 from io import StringIO
-from os import chdir, getcwd
-from pathlib import Path
-from shutil import copytree
-from tempfile import TemporaryDirectory
-from unittest import TestCase
 from unittest.mock import patch
 
-FIXTURE_VAULT = Path('testing-vault')
-VAULT_NAME = 'vault'
+from vault_fixture import TemporaryVaultTestCase, VAULT_NAME
+
 # A weekday, so that `build_paths` looks for the weekday template that the fixture provides
 DATE_WITHOUT_NOTES = '2025-06-11'
 # The fixture already contains `Daily Notes/2025-10-30.md`
 DATE_WITH_EXISTING_DAILY_NOTE = '2025-10-30'
 
 
-class DailySetupTestCase(TestCase):
-    """Runs `daily_setup` against a throwaway copy of the testing vault.
-
-    `build_paths` resolves the vault relative to the working directory, so each test
-    chdirs into a temporary directory that the copy lives in. Working on a copy keeps
-    a half-completed run from leaving marks on the fixture.
-    """
-
-    def setUp(self):
-        self.original_working_directory = getcwd()
-        self.temporary_directory = TemporaryDirectory()
-        self.vault_path = Path(self.temporary_directory.name).joinpath(VAULT_NAME)
-        copytree(FIXTURE_VAULT, self.vault_path)
-        chdir(self.temporary_directory.name)
-
-    def tearDown(self):
-        chdir(self.original_working_directory)
-        self.temporary_directory.cleanup()
+class DailySetupTestCase(TemporaryVaultTestCase):
 
     def run_daily_setup(self, date, vault=VAULT_NAME):
         """Returns the exit code (None if the run completed) and anything sent to stderr."""
