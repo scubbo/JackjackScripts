@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "type": "file",
+      "title": "Non-Todo Starred Note",
+      "path": "Non-Todo Starred Note.md"
+    },
+    {
+      "type": "file",
+      "path": "GTD/Daily TODOs/Starred Old TODO note - 2022-01-01.md",
+      "ctime": 1641024000000
+    },
+    {
+      "type": "file",
+      "path": "GTD/Daily TODOs/Starred TODO note - 2022-04-30.md",
+      "ctime": 1651276800000
+    },
+    {
+      "type": "file",
+      "path": "GTD/Daily TODOs/Starred New TODO note - 2022-07-08.md",
+      "ctime": 1657238400000
+    }
+  ]
+}

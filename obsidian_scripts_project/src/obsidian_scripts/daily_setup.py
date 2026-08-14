@@ -7,10 +7,11 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 from random import choice
-from sys import stdout, exit
+from sys import stderr, stdout, exit
 
 from .constants import OBLIQUE_STRATEGIES, TIME_FORMAT
 from .obsidian_commands import open_file, bookmark_file, unbookmark_file
+from .obsidian_path import ObsidianPath
 from .path_utils import build_paths
 from .bookmark_utils import get_bookmarked_todos_in_date_order
 from .project_summary import text_of_overview
@@ -18,6 +19,34 @@ from .project_summary import text_of_overview
 
 logging.basicConfig(stream=stdout, level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+
+def _abort(message: str):
+    """Reports on stderr and exits non-zero, so that a caller which only surfaces
+    error streams - such as Obsidian's Shell commands plugin - shows the reason."""
+    print(message, file=stderr)
+    exit(1)
+
+
+def _check_nothing_is_in_the_way(paths):
+    """Validates every path `main` depends on before a single byte is written.
+
+    Triggering setup is a one-click action, so it gets repeated by accident. Aborting
+    partway through used to leave a duplicated index entry behind, or a daily note with
+    no matching TODO note."""
+    if not paths['vault_path'].system_path.exists():
+        _abort(f'Vault does not exist at path {paths["vault_path"].system_path}')
+
+    # Templates are filed per-year, so this is the check that fires each 1st of January
+    if not paths['template_path'].system_path.exists():
+        _abort(f'No template to build today\'s TODO note from, expected it at '
+               f'{paths["template_path"].system_path}')
+
+    for description, path in (('Daily note', paths['daily_note_path']),
+                              ('TODO note', paths['todo_path'])):
+        if path.system_path.exists():
+            _abort(f'{description} already exists at {path.system_path} '
+                   f'- has today already been set up?')
+
 
 def main(args):
 
@@ -31,37 +60,27 @@ def main(args):
         try:
             today = datetime.strptime(today_string, TIME_FORMAT)
         except ValueError as e:
-            LOGGER.info(e.args[0])
-            exit(1)
+            _abort(e.args[0])
 
     paths = build_paths(args.vault, today_string)
-    if not paths["vault_path"].system_path.exists():
-        LOGGER.info(f'Vault does not exist at path {paths["vault_path"]}')
-        exit(1)
+    _check_nothing_is_in_the_way(paths)
 
     with paths['daily_note_index_path'].system_path.open('a') as f:
         f.write(f'\n* [[{paths["daily_note_path"].inner_path}|'
                 f'{paths["daily_note_path"].bare_note_name()}]]')
         LOGGER.info(f'Added a link to today\'s Daily Note in {paths["daily_note_index_path"]}')
 
-    if paths['daily_note_path'].system_path.exists():
-        LOGGER.info(f'Daily note path ({paths["daily_note_path"]}) already exists')
-        exit(1)
-
     with paths['daily_note_path'].system_path.open('a') as f:
         f.write(f'[[{paths["todo_path"].inner_path}|TODO note]]\n')
         f.write(f'Today\'s thought: {thought_of_the_day}\n')
         LOGGER.info(f'Created {paths["daily_note_path"].inner_path}')
 
-    if paths["todo_path"].system_path.exists():
-        LOGGER.info(f'Target path ({paths["todo_path"]}) already exists.')
-        exit(1)
-
     with paths["todo_path"].system_path.open('a') as f:
         f.write(f'[[{paths["daily_note_path"].inner_path}|Main Daily Note]]\n')
-        prior_note_path = _random_prior_note_path(paths["vault_path"].system_path)
-        prior_note_title = prior_note_path.stem
-        f.write(f'A random prior note. Review it for refiling or expansion: "[[{'/'.join(prior_note_path.parts[1:])}|{prior_note_title}]]"\n')
+        prior_note = ObsidianPath.build_from_system_path(
+            _random_prior_note_path(paths["vault_path"].system_path))
+        f.write(f'A random prior note. Review it for refiling or expansion: '
+                f'"[[{prior_note.inner_path}|{prior_note.bare_note_name()}]]"\n')
         f.write(paths["template_path"].system_path.read_text())
         f.write('\n')
         f.write('---\n')

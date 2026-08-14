@@ -28,14 +28,20 @@ def open_file(vault_name: str, path: ObsidianPath):
     print(f'Opened {path.system_path}')
 
 
+def _bookmark_entry_path(path: ObsidianPath) -> str:
+    """Bookmarks record a vault-relative path that, unlike an ObsidianPath's
+    `inner_path`, carries the extension."""
+    return f'{path.inner_path}.md'
+
+
 def bookmark_file(path: ObsidianPath):
     vault_path = Path(path.vault_path())
     bookmark_info_file = vault_path.joinpath('.obsidian').joinpath('bookmarks.json')
     bookmark_info = json.loads(bookmark_info_file.read_text())
-    if path.inner_path not in [item['path'] for item in bookmark_info['items']]:
+    if _bookmark_entry_path(path) not in [item['path'] for item in bookmark_info['items']]:
         bookmark_info['items'].append({
             'type': 'file',
-            'path': f'{path.inner_path}.md',
+            'path': _bookmark_entry_path(path),
             'ctime': int(datetime.now().timestamp()*1000)
         })
         bookmark_info_file.write_text(json.dumps(bookmark_info))
@@ -48,7 +54,7 @@ def unbookmark_file(path: ObsidianPath):
     bookmark_info_file = vault_path.joinpath('.obsidian').joinpath('bookmarks.json')
     bookmark_info = json.loads(bookmark_info_file.read_text())
     for idx, elem in enumerate(bookmark_info['items']):
-        if elem['path'] == path.inner_path+'.md':
+        if elem['path'] == _bookmark_entry_path(path):
             bookmark_info['items'].pop(idx)
             bookmark_info_file.write_text(json.dumps(bookmark_info))
             break
