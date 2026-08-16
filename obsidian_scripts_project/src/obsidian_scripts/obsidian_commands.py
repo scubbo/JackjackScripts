@@ -11,19 +11,24 @@ from .obsidian_path import ObsidianPath
 
 LOGGER = logging.getLogger(__name__)
 
-def open_file(vault_name: str, path: ObsidianPath):
-    # TODO - extract
-    obsidian_uri = urlunparse((
+def _advanced_uri(vault_name: str, path: ObsidianPath, new_pane: bool) -> str:
+    parameters = {
+        'vault': vault_name,
+        'filepath': path.inner_path
+    }
+    if new_pane:
+        parameters['newpane'] = 'true'
+    return urlunparse((
         'obsidian',
         'advanced-uri',
         '',
         '',
-        urlencode({
-            'vault': vault_name,
-            'filepath': path.inner_path
-        }, quote_via=quote),
+        urlencode(parameters, quote_via=quote),
         ''))
-    command = f'open "{obsidian_uri}"'
+
+
+def open_file(vault_name: str, path: ObsidianPath, new_pane: bool = False):
+    command = f'open "{_advanced_uri(vault_name, path, new_pane)}"'
     system(command)
     print(f'Opened {path.system_path}')
 

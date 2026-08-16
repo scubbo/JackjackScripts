@@ -1,10 +1,39 @@
+import re
+
 from datetime import datetime, timedelta
 from os import sep
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 from .constants import TIME_FORMAT
 from .obsidian_path import ObsidianPath
+
+TODO_NOTE_NAME = re.compile(r'Todo - (\d{4}-\d{2}-\d{2})')
+
+
+def _todos_dir(vault_path: Path) -> Path:
+    return vault_path.joinpath('GTD').joinpath('Daily TODOs')
+
+
+def most_recent_todo_before(vault_name: str, today_string: str) -> Optional[ObsidianPath]:
+    """The latest TODO note dated earlier than `today_string`, if there is one.
+
+    Not simply yesterday's note - days without one are routine, weekends especially.
+    Dropbox leaves conflicted copies whose names carry a second date, so only notes
+    named exactly for their day are considered.
+    """
+    today = datetime.strptime(today_string, TIME_FORMAT)
+    earlier_notes = []
+    for note in _todos_dir(Path(vault_name)).glob('Todo - *.md'):
+        note_name = TODO_NOTE_NAME.fullmatch(note.stem)
+        if not note_name:
+            continue
+        note_date = datetime.strptime(note_name.group(1), TIME_FORMAT)
+        if note_date < today:
+            earlier_notes.append((note_date, note))
+    if not earlier_notes:
+        return None
+    return ObsidianPath.build_from_system_path(max(earlier_notes)[1])
 
 
 # TODO - implement a properly typed return (or at least a namedtuple) for this
@@ -26,8 +55,7 @@ def build_paths(vault_name, today_string) -> Dict[str, ObsidianPath]:
             return weekend_template_path
         return routine_template_path
 
-    gtd_dir_path = vault_path.joinpath('GTD')
-    gtd_todos_dir_path = gtd_dir_path.joinpath('Daily TODOs')
+    gtd_todos_dir_path = _todos_dir(vault_path)
 
     def _date_to_todo_path(d: datetime):
         return gtd_todos_dir_path.joinpath(f'Todo - {d.strftime(TIME_FORMAT)}.md')

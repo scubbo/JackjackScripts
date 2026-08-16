@@ -12,7 +12,7 @@ from sys import stderr, stdout, exit
 from .constants import OBLIQUE_STRATEGIES, TIME_FORMAT
 from .obsidian_commands import open_file, bookmark_file, unbookmark_file
 from .obsidian_path import ObsidianPath
-from .path_utils import build_paths
+from .path_utils import build_paths, most_recent_todo_before
 from .bookmark_utils import get_bookmarked_todos_in_date_order
 from .project_summary import text_of_overview
 
@@ -93,6 +93,13 @@ def main(args):
         LOGGER.info(f'Created {paths["todo_path"].inner_path}')
 
     open_file(args.vault, paths["todo_path"])
+    # The previous TODO note goes beside today's, to carry leftovers across from. Today's
+    # is opened again afterwards because the pane opened last is the one that takes focus.
+    previous_todo = most_recent_todo_before(args.vault, today_string)
+    if previous_todo:
+        open_file(args.vault, previous_todo, new_pane=True)
+        open_file(args.vault, paths["todo_path"])
+
     # Unstar all TODOs except the most-recent previous one...
     for starred_todo in get_bookmarked_todos_in_date_order(Path(args.vault))[:-1]:
         LOGGER.info(f'DEBUG - unstarring {starred_todo}')
