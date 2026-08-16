@@ -26,3 +26,9 @@ class TemporaryVaultTestCase(TestCase):
     def tearDown(self):
         chdir(self.original_working_directory)
         self.temporary_directory.cleanup()
+
+    def given_todo_notes(self, *note_names):
+        """Adds empty TODO notes to the copied vault, named without their extension."""
+        todos_directory = self.vault_path.joinpath('GTD', 'Daily TODOs')
+        for note_name in note_names:
+            todos_directory.joinpath(f'{note_name}.md').write_text('')

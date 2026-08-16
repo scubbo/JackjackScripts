@@ -19,9 +19,10 @@ class DailySetupTestCase(TemporaryVaultTestCase):
         """Returns the exit code (None if the run completed) and anything sent to stderr."""
         reported_errors = StringIO()
         # `open_file` shells out to `open obsidian://...`, which would raise a real Obsidian window
-        with patch.object(daily_setup, 'open_file'), \
+        with patch.object(daily_setup, 'open_file') as opened, \
                 patch.object(daily_setup, 'stderr', reported_errors), \
                 redirect_stdout(StringIO()):
+            self.opened = opened
             try:
                 daily_setup.main(Namespace(vault=vault, date=date))
             except SystemExit as abort:
@@ -106,6 +107,28 @@ class TestDailySetup(DailySetupTestCase):
         self.run_daily_setup(DATE_WITHOUT_NOTES)
 
         self.assertIn(template_text, self.todo_contents())
+
+    def notes_opened(self):
+        """Each `open_file` call as (note, whether it asked for a new pane)."""
+        return [(call.args[1].inner_path, call.kwargs.get('new_pane', False))
+                for call in self.opened.call_args_list]
+
+    def test_shows_the_previous_todo_note_beside_todays_and_keeps_focus_on_todays(self):
+        self.given_todo_notes('Todo - 2025-06-06', 'Todo - 2025-06-10')
+
+        self.run_daily_setup(DATE_WITHOUT_NOTES)
+
+        today = f'GTD/Daily TODOs/Todo - {DATE_WITHOUT_NOTES}'
+        self.assertEqual(self.notes_opened(),
+                         [(today, False),
+                          ('GTD/Daily TODOs/Todo - 2025-06-10', True),
+                          (today, False)])
+
+    def test_opens_only_todays_note_when_no_earlier_one_exists(self):
+        self.run_daily_setup(DATE_WITHOUT_NOTES)
+
+        self.assertEqual(self.notes_opened(),
+                         [(f'GTD/Daily TODOs/Todo - {DATE_WITHOUT_NOTES}', False)])
 
     def test_links_the_random_prior_note_without_its_extension(self):
         self.run_daily_setup(DATE_WITHOUT_NOTES)
