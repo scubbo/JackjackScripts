@@ -48,6 +48,35 @@ def _check_nothing_is_in_the_way(paths):
                    f'- has today already been set up?')
 
 
+def _recurring_tasks_section(vault_path: Path, today: datetime) -> str:
+    """Renders the still-active items of `GTD/Recurring Tasks.md` as a checkbox section.
+
+    Bulleted lines become checkboxes; anything else in the note is commentary. An item
+    may limit its own lifetime with a trailing `| until: YYYY-MM-DD` (inclusive)."""
+    recurring_path = vault_path.joinpath('GTD', 'Recurring Tasks.md')
+    if not recurring_path.exists():
+        return ''
+    items = []
+    for line in recurring_path.read_text().splitlines():
+        stripped = line.strip()
+        if not stripped.startswith(('- ', '* ')):
+            continue
+        item, _, qualifier = (part.strip() for part in stripped[2:].partition('|'))
+        if qualifier.startswith('until:'):
+            until_string = qualifier.removeprefix('until:').strip()
+            try:
+                until = datetime.strptime(until_string, TIME_FORMAT)
+            except ValueError:
+                _abort(f'Unparseable until-date "{until_string}" in '
+                       f'{recurring_path} (expected YYYY-MM-DD)')
+            if today.date() > until.date():
+                continue
+        items.append(f'- [ ] {item}')
+    if not items:
+        return ''
+    return '**Recurring**\n' + '\n'.join(items) + '\n---\n'
+
+
 def main(args):
 
     thought_of_the_day = choice(OBLIQUE_STRATEGIES)
@@ -64,6 +93,8 @@ def main(args):
 
     paths = build_paths(args.vault, today_string)
     _check_nothing_is_in_the_way(paths)
+    # Rendered up-front so a malformed entry aborts before a single byte is written
+    recurring_tasks_section = _recurring_tasks_section(paths['vault_path'].system_path, today)
 
     with paths['daily_note_index_path'].system_path.open('a') as f:
         f.write(f'\n* [[{paths["daily_note_path"].inner_path}|'
@@ -84,6 +115,7 @@ def main(args):
         f.write(paths["template_path"].system_path.read_text())
         f.write('\n')
         f.write('---\n')
+        f.write(recurring_tasks_section)
         # TODO - parse previous day's TODO's and add any uncompleted ones in here
         f.write('**Personal**\n- [ ] \n---\n')
         f.write('**Work**\n- [ ] \n---\n')
