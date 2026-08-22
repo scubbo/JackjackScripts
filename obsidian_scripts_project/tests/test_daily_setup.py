@@ -109,8 +109,8 @@ class TestDailySetup(DailySetupTestCase):
         self.assertIn(template_text, self.todo_contents())
 
     def notes_opened(self):
-        """Each `open_file` call as (note, whether it asked for a new pane)."""
-        return [(call.args[1].inner_path, call.kwargs.get('new_pane', False))
+        """Each `open_file` call as (note, whether it asked for a pane of its own)."""
+        return [(call.args[1].inner_path, call.kwargs.get('in_split', False))
                 for call in self.opened.call_args_list]
 
     def test_shows_the_previous_todo_note_beside_todays_and_keeps_focus_on_todays(self):

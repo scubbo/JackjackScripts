@@ -125,11 +125,12 @@ def main(args):
         LOGGER.info(f'Created {paths["todo_path"].inner_path}')
 
     open_file(args.vault, paths["todo_path"])
-    # The previous TODO note goes beside today's, to carry leftovers across from. Today's
-    # is opened again afterwards because the pane opened last is the one that takes focus.
+    # The previous TODO note goes in a pane beside today's, to carry leftovers across from.
+    # Today's is then asked for a second time to bring focus back to it: a note that is
+    # already open gets focused rather than opened again.
     previous_todo = most_recent_todo_before(args.vault, today_string)
     if previous_todo:
-        open_file(args.vault, previous_todo, new_pane=True)
+        open_file(args.vault, previous_todo, in_split=True)
         open_file(args.vault, paths["todo_path"])
 
     # Unstar all TODOs except the most-recent previous one...

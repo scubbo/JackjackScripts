@@ -11,13 +11,16 @@ from .obsidian_path import ObsidianPath
 
 LOGGER = logging.getLogger(__name__)
 
-def _advanced_uri(vault_name: str, path: ObsidianPath, new_pane: bool) -> str:
+def _advanced_uri(vault_name: str, path: ObsidianPath, in_split: bool) -> str:
     parameters = {
         'vault': vault_name,
         'filepath': path.inner_path
     }
-    if new_pane:
-        parameters['newpane'] = 'true'
+    if in_split:
+        # `split-or-focus` puts the note in a pane beside the current one, or focuses the
+        # note where it is if it happens to be open already. A plain `split` would stack up
+        # another pane every time it ran.
+        parameters['openmode'] = 'split-or-focus'
     return urlunparse((
         'obsidian',
         'advanced-uri',
@@ -27,8 +30,8 @@ def _advanced_uri(vault_name: str, path: ObsidianPath, new_pane: bool) -> str:
         ''))
 
 
-def open_file(vault_name: str, path: ObsidianPath, new_pane: bool = False):
-    command = f'open "{_advanced_uri(vault_name, path, new_pane)}"'
+def open_file(vault_name: str, path: ObsidianPath, in_split: bool = False):
+    command = f'open "{_advanced_uri(vault_name, path, in_split)}"'
     system(command)
     print(f'Opened {path.system_path}')
 
