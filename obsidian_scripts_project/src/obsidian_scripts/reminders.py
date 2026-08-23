@@ -118,6 +118,9 @@ def move_to_sent(vault_path: Path, reminders: List[Reminder], today: datetime):
     moved = {reminder.line_index for reminder in reminders}
     filed = [f'{lines[index]} | sent: {today.strftime(TIME_FORMAT)}' for index in sorted(moved)]
 
+    # A single pass over the original snapshot, rather than a sequence of deletions, so
+    # that every recorded index still addresses the line it was read from however many
+    # reminders come due together
     rewritten = []
     for index, line in enumerate(lines):
         if index == end_of_sent:

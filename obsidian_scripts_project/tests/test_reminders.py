@@ -224,6 +224,24 @@ class TestFilingSentReminders(ReminderTestCase):
             '- 2026-01-01 - 2025-12-01 - Older one | sent: 2026-01-01\n'
             '- 2026-08-20 - 2026-07-01 - Chase the roofer | sent: 2026-08-22\n'))
 
+    def test_several_reminders_due_at_once_all_move_to_the_right_lines(self):
+        """Line indices are recorded while reading and spent while filing, so removing
+        lines one at a time would slide the later ones out from under their own indices.
+        The not-yet-due line sits between two due ones, where such a slip would land."""
+        self.given_reminders('- 2026-08-18 - 2026-07-01 - Renew the parking permit\n'
+                             '- 2026-08-19 - 2026-07-01 - Chase the roofer\n'
+                             '- 2026-09-15 - 2026-07-01 - Book the checkup\n'
+                             '- 2026-08-20 - 2026-07-01 - Order more coffee\n')
+
+        due, _ = self.due()
+        reminders.move_to_sent(self.vault_path, due, TODAY)
+
+        self.assertEqual(self.file_contents(), reminders_file(
+            '- 2026-09-15 - 2026-07-01 - Book the checkup\n',
+            '- 2026-08-18 - 2026-07-01 - Renew the parking permit | sent: 2026-08-22\n'
+            '- 2026-08-19 - 2026-07-01 - Chase the roofer | sent: 2026-08-22\n'
+            '- 2026-08-20 - 2026-07-01 - Order more coffee | sent: 2026-08-22\n'))
+
     def test_filing_nothing_leaves_the_note_untouched(self):
         self.given_reminders('- 2026-09-15 - 2026-07-01 - Book the checkup\n')
         before = self.file_contents()
