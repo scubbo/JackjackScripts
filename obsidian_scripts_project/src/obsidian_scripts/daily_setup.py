@@ -14,6 +14,8 @@ from .obsidian_commands import open_file, bookmark_file, unbookmark_file
 from .obsidian_path import ObsidianPath
 from .path_utils import build_paths, most_recent_todo_before
 from .bookmark_utils import get_bookmarked_todos_in_date_order
+from .reminders import (reminders_due, section_for_todo_note, banner_for_problems,
+                        move_to_sent)
 from .project_summary import text_of_overview
 
 
@@ -95,6 +97,7 @@ def main(args):
     _check_nothing_is_in_the_way(paths)
     # Rendered up-front so a malformed entry aborts before a single byte is written
     recurring_tasks_section = _recurring_tasks_section(paths['vault_path'].system_path, today)
+    due_reminders, reminder_problems = reminders_due(paths['vault_path'].system_path, today)
 
     with paths['daily_note_index_path'].system_path.open('a') as f:
         f.write(f'\n* [[{paths["daily_note_path"].inner_path}|'
@@ -107,6 +110,8 @@ def main(args):
         LOGGER.info(f'Created {paths["daily_note_path"].inner_path}')
 
     with paths["todo_path"].system_path.open('a') as f:
+        # First, so that an undelivered reminder is impossible to miss
+        f.write(banner_for_problems(reminder_problems))
         f.write(f'[[{paths["daily_note_path"].inner_path}|Main Daily Note]]\n')
         prior_note = ObsidianPath.build_from_system_path(
             _random_prior_note_path(paths["vault_path"].system_path))
@@ -116,6 +121,7 @@ def main(args):
         f.write('\n')
         f.write('---\n')
         f.write(recurring_tasks_section)
+        f.write(section_for_todo_note(due_reminders))
         # TODO - parse previous day's TODO's and add any uncompleted ones in here
         f.write('**Personal**\n- [ ] \n---\n')
         f.write('**Work**\n- [ ] \n---\n')
@@ -123,6 +129,10 @@ def main(args):
         f.write('# Data\n\n```\ngmail:\n  start-count: \n  end-count: \nprotonmail:\n  start-count: \n  end-count: \n```\n---\n')
         f.write('\n#TODO')
         LOGGER.info(f'Created {paths["todo_path"].inner_path}')
+
+    # Only once the note carrying them exists. Filing first would risk marking a reminder
+    # sent that was never delivered; this way a failure here merely repeats one tomorrow.
+    move_to_sent(paths['vault_path'].system_path, due_reminders, today)
 
     open_file(args.vault, paths["todo_path"])
     # The previous TODO note goes in a pane beside today's, to carry leftovers across from.
