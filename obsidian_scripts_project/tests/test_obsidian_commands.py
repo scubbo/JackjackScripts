@@ -12,19 +12,19 @@ TODO_NOTE = 'GTD/Daily TODOs/Todo - 2025-06-11.md'
 
 class TestAdvancedUri(TestCase):
 
-    def uri_for(self, new_pane):
+    def uri_for(self, in_split):
         note = ObsidianPath.build_from_system_path(Path(VAULT_NAME).joinpath(TODO_NOTE))
-        return obsidian_commands._advanced_uri(VAULT_NAME, note, new_pane)
+        return obsidian_commands._advanced_uri(VAULT_NAME, note, in_split)
 
     def test_addresses_the_note_within_the_vault(self):
-        uri = self.uri_for(new_pane=False)
+        uri = self.uri_for(in_split=False)
         self.assertTrue(uri.startswith('obsidian://advanced-uri?'))
         self.assertIn(f'vault={VAULT_NAME}', uri)
         self.assertIn('filepath=GTD%2FDaily%20TODOs%2FTodo%20-%202025-06-11', uri)
 
-    def test_asks_for_a_new_pane_only_when_one_is_wanted(self):
-        self.assertNotIn('newpane', self.uri_for(new_pane=False))
-        self.assertIn('newpane=true', self.uri_for(new_pane=True))
+    def test_asks_for_a_split_only_when_one_is_wanted(self):
+        self.assertNotIn('openmode', self.uri_for(in_split=False))
+        self.assertIn('openmode=split-or-focus', self.uri_for(in_split=True))
 
 
 class TestBookmarking(TemporaryVaultTestCase):
