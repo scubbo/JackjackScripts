@@ -220,3 +220,89 @@ class TestRecurringTasks(DailySetupTestCase):
         self.assertIn('Recurring Tasks', reported_errors)
         self.assertEqual(self.index_contents(), index_before)
         self.assertEqual(self.notes_in_vault(), notes_before)
+
+
+class TestReminders(DailySetupTestCase):
+    """`GTD/Reminders.md` holds items captured against a specific future date. One
+    surfaces in the day's TODO note once that date arrives, and is then filed as sent."""
+
+    todo_contents = TestDailySetup.todo_contents
+
+    def given_reminders(self, live='', sent=''):
+        self.vault_path.joinpath('GTD', 'Reminders.md').write_text(
+            f'# Reminders\n\n## Live\n\n{live}\n## Sent\n\n{sent}')
+
+    def live_and_sent(self):
+        contents = self.vault_path.joinpath('GTD', 'Reminders.md').read_text()
+        live, _, sent = contents.partition('## Sent')
+        return live, sent
+
+    def test_a_due_reminder_appears_as_a_checkbox(self):
+        self.given_reminders('- 2025-06-10 - 2025-01-02 - Start the passport renewal\n')
+
+        exit_code, reported_errors = self.run_daily_setup(DATE_WITHOUT_NOTES)
+
+        self.assertIsNone(exit_code)
+        self.assertEqual(reported_errors, '')
+        self.assertIn('**Reminders**\n- [ ] Start the passport renewal\n---\n',
+                      self.todo_contents())
+
+    def test_reminders_come_after_recurring_and_before_personal(self):
+        self.vault_path.joinpath('GTD', 'Recurring Tasks.md').write_text(
+            '- Read a chapter of Crafting Interpreters\n')
+        self.given_reminders('- 2025-06-10 - 2025-01-02 - Start the passport renewal\n')
+
+        self.run_daily_setup(DATE_WITHOUT_NOTES)
+
+        contents = self.todo_contents()
+        self.assertLess(contents.index('**Recurring**'), contents.index('**Reminders**'))
+        self.assertLess(contents.index('**Reminders**'), contents.index('**Personal**'))
+
+    def test_a_sent_reminder_is_filed_with_the_day_it_was_sent(self):
+        self.given_reminders('- 2025-06-10 - 2025-01-02 - Start the passport renewal\n')
+
+        self.run_daily_setup(DATE_WITHOUT_NOTES)
+
+        live, sent = self.live_and_sent()
+        self.assertNotIn('passport', live)
+        self.assertIn('- 2025-06-10 - 2025-01-02 - Start the passport renewal '
+                      f'| sent: {DATE_WITHOUT_NOTES}', sent)
+
+    def test_a_reminder_for_a_later_date_is_left_alone(self):
+        self.given_reminders('- 2025-12-25 - 2025-01-02 - Wrap the presents\n')
+
+        self.run_daily_setup(DATE_WITHOUT_NOTES)
+
+        self.assertNotIn('**Reminders**', self.todo_contents())
+        self.assertIn('Wrap the presents', self.live_and_sent()[0])
+
+    def test_a_vault_without_a_reminders_note_is_unaffected(self):
+        """Every vault is in this state until the note is first created."""
+        exit_code, reported_errors = self.run_daily_setup(DATE_WITHOUT_NOTES)
+
+        self.assertIsNone(exit_code)
+        self.assertEqual(reported_errors, '')
+        self.assertNotIn('**Reminders**', self.todo_contents())
+        self.assertNotIn('[!error]', self.todo_contents())
+
+    def test_an_unreadable_reminder_warns_at_the_top_and_stays_live(self):
+        self.given_reminders('- Midsummer - 2025-01-02 - Start the passport renewal\n')
+
+        exit_code, _ = self.run_daily_setup(DATE_WITHOUT_NOTES)
+
+        self.assertIsNone(exit_code)
+        self.assertTrue(self.todo_contents().startswith('> [!error]'))
+        self.assertIn('Midsummer', self.todo_contents())
+        self.assertIn('Midsummer', self.live_and_sent()[0])
+
+    def test_an_unreadable_reminder_does_not_stop_the_rest_of_the_run(self):
+        """One typo costs a warning, not the day's setup - unlike a malformed recurring
+        task, which aborts before anything is written."""
+        self.given_reminders('- Midsummer - 2025-01-02 - Start the passport renewal\n'
+                             '- 2025-06-10 - 2025-01-02 - Chase the roofer\n')
+
+        self.run_daily_setup(DATE_WITHOUT_NOTES)
+
+        self.assertIn('- [ ] Chase the roofer', self.todo_contents())
+        self.assertTrue(self.vault_path
+                        .joinpath('Daily Notes', f'{DATE_WITHOUT_NOTES}.md').exists())
